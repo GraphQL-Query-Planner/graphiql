@@ -382,12 +382,13 @@ export class GraphiQL extends React.Component {
                 editorTheme={this.props.editorTheme}
                 ResultsTooltip={this.props.ResultsTooltip}
               />
-              {this.props.plugins
-                ? <PluginsPane
-                    plugins={this.props.plugins}
-                  />
-                : ''}
-              {footer}
+              <GraphiQL.Footer>
+                {this.props.plugins
+                  ? <PluginsPane
+                      plugins={this.props.plugins}
+                    />
+                  : ''}
+              </GraphiQL.Footer>
             </div>
           </div>
         </div>
