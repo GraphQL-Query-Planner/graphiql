@@ -69,9 +69,9 @@ export class GraphiQL extends React.Component {
     plugins: PropTypes.arrayOf(
       PropTypes.shape({
         title: PropTypes.string,
-        content: PropTypes.any
-      })
-    )
+        plugin: PropTypes.func.isRequired,
+      }),
+    ),
   };
 
   constructor(props) {
@@ -382,13 +382,14 @@ export class GraphiQL extends React.Component {
                 editorTheme={this.props.editorTheme}
                 ResultsTooltip={this.props.ResultsTooltip}
               />
-              <GraphiQL.Footer>
-                {this.props.plugins
-                  ? <PluginsPane
+              {this.props.plugins
+                ? <GraphiQL.Footer>
+                    <PluginsPane
                       plugins={this.props.plugins}
+                      value={this.state.response}
                     />
-                  : ''}
-              </GraphiQL.Footer>
+                  </GraphiQL.Footer>
+                : footer}
             </div>
           </div>
         </div>

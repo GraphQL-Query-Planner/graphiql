@@ -4,14 +4,17 @@ import PropTypes from 'prop-types';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 
 export class PluginsPane extends React.Component {
-  static propTypes = [{
-    plugins: PropTypes.arrayOf(
-      PropTypes.shape({
-        title: PropTypes.string,
-        content: PropTypes.any
-      })
-    )
-  }];
+  static propTypes = [
+    {
+      plugins: PropTypes.arrayOf(
+        PropTypes.shape({
+          title: PropTypes.string,
+          plugin: PropTypes.func.isRequired,
+        }),
+      ),
+      value: PropTypes.string,
+    },
+  ];
 
   constructor() {
     super();
@@ -24,20 +27,20 @@ export class PluginsPane extends React.Component {
 
   render() {
     const style = {
-      height: this.state.pluginsPaneOpen ? this.state.pluginsPaneHeight : '29px',
+      height: this.state.pluginsPaneOpen
+        ? this.state.pluginsPaneHeight
+        : '29px',
     };
 
     return (
-      <div
-      className='plugins-pane'
-      style={style}
-      >
+      <div className="plugins-pane" style={style}>
         <div
-          className="plugins-pane__title"
-          style={{cursor: this.state.pluginsPaneOpen ? 'row-resize' : 'n-resize'}}
-          onMouseDown={this.handleResizeStart}
-        >
-          Plugins
+          className="plugins-pane__title variable-editor-title"
+          style={{
+            cursor: this.state.pluginsPaneOpen ? 'row-resize' : 'n-resize',
+          }}
+          onMouseDown={this.handleResizeStart}>
+          {'Plugins'}
         </div>
         <Tabs>
           {this.tabList()}
@@ -49,20 +52,22 @@ export class PluginsPane extends React.Component {
 
   tabList() {
     const tabs = this.props.plugins.map((plugin, id) =>
-      <Tab key={id}> {plugin.title} </Tab>
+      <Tab key={id}> {plugin.title} </Tab>,
     );
-    return (
-      <TabList>{tabs}</TabList>
-    )
+    return <TabList>{tabs}</TabList>;
   }
 
   tabPanels() {
-    const tabs = this.props.plugins.map((plugin, id) => {
+    const tabs = this.props.plugins.map((aPlugin, id) => {
+      const { plugin } = aPlugin;
+      const viewer = plugin && plugin(this.props.value);
       return (
-        <TabPanel key={id}> {plugin.content} </TabPanel>
+        <TabPanel key={id}>
+          {viewer}
+        </TabPanel>
       );
     });
-    return tabs
+    return tabs;
   }
 
   handleResizeStart(downEvent) {
@@ -75,7 +80,7 @@ export class PluginsPane extends React.Component {
 
     let onMouseUp = () => {
       if (!didMove) {
-        this.setState({pluginsPaneOpen: !wasOpen});
+        this.setState({ pluginsPaneOpen: !wasOpen });
       }
 
       document.removeEventListener('mousemove', onMouseMove);
@@ -84,7 +89,7 @@ export class PluginsPane extends React.Component {
       onMouseUp = null;
     };
 
-    let onMouseMove = (moveEvent) => {
+    let onMouseMove = moveEvent => {
       if (moveEvent.buttons === 0) {
         return onMouseUp();
       }
@@ -94,7 +99,6 @@ export class PluginsPane extends React.Component {
       const editorBar = document.querySelector('.editorBar');
       const topSize = moveEvent.clientY - getTop(editorBar) - offset;
       const bottomSize = editorBar.clientHeight - topSize - 30;
-
 
       if (bottomSize < 60) {
         this.setState({
